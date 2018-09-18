@@ -37,11 +37,12 @@ resource "aws_launch_configuration" "elasticsearch" {
     volume_type = "gp2"
   }
 
-  ebs_block_device = [{
-    device_name = "/dev/sdb"
-    volume_size = "${var.elasticsearch_data_volume_size}"
-    volume_type = "gp2"
-  },
+  ebs_block_device = [
+    {
+      device_name = "/dev/sdb"
+      volume_size = "${var.elasticsearch_data_volume_size}"
+      volume_type = "gp2"
+    },
     {
       device_name = "/dev/sdc"
       volume_size = "${var.elasticsearch_log_volume_size}"

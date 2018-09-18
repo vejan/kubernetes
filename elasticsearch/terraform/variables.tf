@@ -26,7 +26,7 @@ variable "subnet_name_filter" {
 # security settings
 variable "ssh_ip_range" {
   description = "Range of IPs able to SSH into the Elasticsearch nodes"
-  default = "0.0.0.0/0"
+  default     = "0.0.0.0/0"
 }
 
 # Autoscaling Group Settings
