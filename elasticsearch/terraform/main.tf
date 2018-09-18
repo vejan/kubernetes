@@ -38,16 +38,22 @@ resource "aws_launch_configuration" "elasticsearch" {
   }
 
   ebs_block_device = [
-    {
-      device_name = "/dev/sdb"
-      volume_size = "${var.elasticsearch_data_volume_size}"
-      volume_type = "gp2"
-    },
-    {
-      device_name = "/dev/sdc"
-      volume_size = "${var.elasticsearch_log_volume_size}"
-      volume_type = "gp2"
-    },
+    "${
+      slice(
+        list(
+          map(
+            "device_name", "/dev/sdb",
+            "volume_size", "${var.elasticsearch_data_volume_size}",
+            "volume_type", "gp2"
+          ),
+        map(
+          "device_name", "/dev/sdc",
+          "volume_size", "${var.elasticsearch_log_volume_size}",
+          "volume_type", "gp2"
+        )
+      )
+      , substr(format("%.3s", var.elasticsearch_instance_type), 2, 1) == "d" ? 1 : 0, 2)
+    }",
   ]
 }
 

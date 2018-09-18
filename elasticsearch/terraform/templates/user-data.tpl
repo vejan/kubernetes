@@ -50,14 +50,6 @@ fi
 sudo sed -i 's/#MAX_LOCKED_MEMORY=unlimited/MAX_LOCKED_MEMORY=unlimited/' /etc/init.d/elasticsearch
 sudo sed -i "s/#ES_HEAP_SIZE=.*$/ES_HEAP_SIZE=$${heap_memory}m/" /etc/default/elasticsearch
 
-# data volume
-data_volume_name="/dev/sdb"
-sudo mkfs -t ext4 $data_volume_name
-sudo mkdir -p ${elasticsearch_data_dir}
-sudo mount $data_volume_name ${elasticsearch_data_dir}
-sudo echo "$data_volume_name ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" >> /etc/fstab
-sudo chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
-
 # log volume
 log_volume_name="/dev/sdc"
 sudo mkfs -t ext4 $log_volume_name
@@ -65,6 +57,28 @@ sudo mkdir -p ${elasticsearch_log_dir}
 sudo mount $log_volume_name ${elasticsearch_log_dir}
 sudo echo "$log_volume_name ${elasticsearch_log_dir} ext4 defaults,nofail 0 2" >> /etc/fstab
 sudo chown -R elasticsearch:elasticsearch ${elasticsearch_log_dir}
+
+# data volume
+
+# do a bunch of work to find the correct disk.
+# it might be a local NVMe on a c5d/m5d instance
+# it might be a /dev/sd* instance if it's an EBS volum
+by_id_dir="/dev/disk/by-id/"
+nvme_file_prefix="nvme-Amazon_EC2_NVMe_Instance_Storage"
+nvme_path_prefix="$by_id_dir$nvme_file_prefix"
+
+if test -n "$(find $by_id_dir -maxdepth 1 -name $nvme_file_prefix* -print -quit)"
+then
+  data_volume_name=$(ls $nvme_path_prefix*)
+else
+  data_volume_name="/dev/sdb"
+fi
+
+sudo mkfs -t ext4 $data_volume_name
+sudo mkdir -p ${elasticsearch_data_dir}
+sudo mount $data_volume_name ${elasticsearch_data_dir}
+sudo echo "$data_volume_name ${elasticsearch_data_dir} ext4 defaults,nofail 0 2" >> /etc/fstab
+sudo chown -R elasticsearch:elasticsearch ${elasticsearch_data_dir}
 
 # Start Elasticsearch
 sudo service elasticsearch start
