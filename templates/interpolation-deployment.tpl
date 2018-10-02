@@ -4,6 +4,10 @@ metadata:
   name: pelias-interpolation
 spec:
   replicas: {{ .Values.interpolationReplicas | default 1 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -34,7 +38,7 @@ spec:
               mountPath: /data
           resources:
             limits:
-              memory: 3Gi
+              memory: 60Gi
               cpu: 2
             requests:
               memory: 2Gi

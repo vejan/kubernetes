@@ -14,8 +14,8 @@ spec:
           image: pelias/go-whosonfirst-libpostal:{{ .Values.libpostalDockerTag | default "latest" }}
           resources:
             limits:
-              memory: 3Gi
-              cpu: 1.5
+              memory: 6Gi
+              cpu: 8
             requests:
               memory: 2Gi
               cpu: 0.1
